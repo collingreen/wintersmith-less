@@ -4,6 +4,8 @@ async = require 'async'
 fs = require 'fs'
 
 module.exports = (env, callback) ->
+  options = env.config.less or {}
+  options.fileGlob ?= '**/[^\_]*.less'
 
   class LessPlugin extends env.ContentPlugin
 
@@ -14,7 +16,6 @@ module.exports = (env, callback) ->
 
     getView: ->
       return (env, locals, contents, templates, callback) ->
-        options = env.config.less or {}
         options.filename = @filepath.relative
         options.paths = [path.dirname(@filepath.full)]
         # less throws errors all over the place...
@@ -45,5 +46,5 @@ module.exports = (env, callback) ->
       else
         callback null, new LessPlugin filepath, buffer.toString()
 
-  env.registerContentPlugin 'styles', '**/[^\_]*.less', LessPlugin
+  env.registerContentPlugin 'styles', options.fileGlob, LessPlugin
   callback()
